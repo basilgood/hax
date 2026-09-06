@@ -18,6 +18,10 @@ struct item dispatch_tool_skipped(struct render_ctx *render, const struct item *
 /* Render a call refused by the frontend and return its synthetic result. */
 struct item dispatch_tool_refused(struct render_ctx *render, const struct item *call);
 
+/* Render a call denied by the user and return its synthetic result. */
+struct item dispatch_tool_denied(struct render_ctx *render, const struct item *call,
+                                 const char *path);
+
 /* Render a call as a collapsed breadcrumb without executing it. */
 void render_collapsed_tool_call(struct render_ctx *render, const struct item *call);
 

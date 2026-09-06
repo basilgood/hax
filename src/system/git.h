@@ -15,4 +15,8 @@ struct git_state {
 void git_state_probe(struct git_state *out);
 void git_state_free(struct git_state *state);
 
+/* The worktree root of the repository containing the current directory, or NULL when the
+ * directory is not in a repository or git cannot answer. */
+char *git_toplevel(void);
+
 #endif /* HAX_SYSTEM_GIT_H */

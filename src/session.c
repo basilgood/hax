@@ -189,8 +189,8 @@ static const struct {
 } ORIGIN_NAMES[] = {
     {ITEM_ORIGIN_COMPACT_SEED, "compact_seed"}, {ITEM_ORIGIN_CONTINUATION, "continuation"},
     {ITEM_ORIGIN_INTERRUPTED, "interrupted"},   {ITEM_ORIGIN_SKIPPED, "skipped"},
-    {ITEM_ORIGIN_REFUSED, "refused"},           {ITEM_ORIGIN_SUMMARIZED, "summarized"},
-    {ITEM_ORIGIN_TASK_NOTE, "task_note"},
+    {ITEM_ORIGIN_REFUSED, "refused"},           {ITEM_ORIGIN_DENIED, "denied"},
+    {ITEM_ORIGIN_SUMMARIZED, "summarized"},     {ITEM_ORIGIN_TASK_NOTE, "task_note"},
 };
 
 static const char *origin_to_str(enum item_origin origin)

@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#include "permission.h"
 #include "provider.h"
 #include "tool.h"
 
@@ -17,6 +18,7 @@
 #define INTERRUPT_MARKER "[interrupted]"
 #define REFUSED_RESULT   "error: tool calls are disabled in this session"
 #define REFUSED_MARKER   "[refused: --raw, no tools advertised]"
+#define DENIED_MARKER    "[denied: outside the workspace]"
 
 /* Synthetic user text for an empty-send resume. Origin, not text, identifies continuations. */
 #define CONTINUE_MARKER "[continue]"
@@ -56,6 +58,9 @@ struct agent_session {
     struct item *items;
     size_t n_items;
     size_t cap_items;
+
+    /* Workspaces the agent may touch freely; anything outside requires user approval. */
+    struct permission permission;
 };
 
 /* Initialize a session. A missing model is valid so the interactive frontend can prompt for one. */

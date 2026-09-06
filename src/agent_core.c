@@ -1,8 +1,10 @@
 /* SPDX-License-Identifier: MIT */
 #include "agent_core.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "agent_env.h"
 #include "agent_usage.h"
@@ -11,6 +13,7 @@
 #include "diag.h"
 #include "effort.h"
 #include "model_meta.h"
+#include "permission.h"
 #include "provider.h"
 #include "session.h"
 #include "tool.h"
@@ -18,6 +21,7 @@
 #include "turn.h"
 #include "xalloc.h"
 #include "providers/registry.h"
+#include "system/git.h"
 #include "tools/bash_env.h"
 #include "tools/task_registry.h"
 
@@ -50,6 +54,8 @@ static const char DEFAULT_SYSTEM_PROMPT[] =
     "(`reset --hard`, `checkout --`, `branch -D`) unless the user explicitly asks. "
     "Never revert changes you didn't make. If a hook or check fails, fix the cause; "
     "don't bypass with `--no-verify`.\n"
+    "\n"
+    "File access outside the current workspace requires user approval; hax will ask.\n"
     "\n"
     "If asked for a \"review\": lead with bugs, risks, and missing tests for the "
     "*proposed change*, not a summary. A finding should be one the author would "
@@ -206,6 +212,16 @@ void agent_session_init(struct agent_session *session, struct provider *provider
 {
     memset(session, 0, sizeof(*session));
 
+    /* The workspace is the worktree root; outside a repository, the working directory. */
+    char *project_dir = git_toplevel();
+    if (!project_dir) {
+        char cwd[PATH_MAX];
+        if (getcwd(cwd, sizeof(cwd)))
+            project_dir = xstrdup(cwd);
+    }
+    permission_init(&session->permission, project_dir);
+    free(project_dir);
+
     const char *model = config_str("model");
     if ((!model || !*model) && provider)
         model = provider->default_model;
@@ -293,6 +309,7 @@ void agent_session_free(struct agent_session *session)
     free(session->model);
     free(session->model_label);
     free(session->effort);
+    permission_free(&session->permission);
     memset(session, 0, sizeof(*session));
 }
 

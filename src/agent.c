@@ -21,6 +21,8 @@
 #include "history.h"
 #include "model_meta.h"
 #include "paste_image.h"
+#include "permission.h"
+#include "permission_ask.h"
 #include "provider.h"
 #include "select.h"
 #include "session.h"
@@ -1132,6 +1134,18 @@ static struct item repl_loop_tool_call(const struct item *call, enum agent_loop_
     if (action == AGENT_LOOP_TOOL_SKIP) {
         render_set_mode(render, RENDER_IDLE);
         return dispatch_tool_skipped(render, call);
+    }
+    char *outside = permission_gate(&ctx->state->session->permission, call->tool_name,
+                                    call->tool_arguments_json);
+    if (outside) {
+        render_set_mode(render, RENDER_IDLE);
+        int allowed = permission_ask(&ctx->state->session->permission, outside, render->spinner);
+        if (!allowed) {
+            struct item result = dispatch_tool_denied(render, call, outside);
+            free(outside);
+            return result;
+        }
+        free(outside);
     }
     return dispatch_tool_call(render, call, image_input);
 }

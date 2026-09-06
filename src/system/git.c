@@ -60,3 +60,9 @@ void git_state_free(struct git_state *state)
     free(state->subject);
     *state = (struct git_state){0};
 }
+
+char *git_toplevel(void)
+{
+    static const char *const argv[] = {"git", "rev-parse", "--show-toplevel", NULL};
+    return run_git(argv);
+}

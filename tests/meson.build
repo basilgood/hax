@@ -34,6 +34,7 @@ test_sources = [
     'test_harness.c',
     'test_oneshot.c',
     'test_paste_image.c',
+    'test_permission.c',
     'test_provider.c',
     'test_select_config.c',
     'test_select_model.c',
@@ -151,6 +152,7 @@ endforeach
 # selects the group (`meson test 'e2e/*'`).
 e2e_scenarios = [
     'oneshot_json',
+    'oneshot_permission',
     'oneshot_signal_interrupt',
     'oneshot_text',
     'oneshot_tool',

@@ -102,6 +102,8 @@ sources = files(
     'src/model_sort.c',
     'src/oneshot.c',
     'src/paste_image.c',
+    'src/permission.c',
+    'src/permission_ask.c',
     'src/provider.c',
     'src/select.c',
     'src/session.c',

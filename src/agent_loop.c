@@ -9,6 +9,8 @@
 #include "agent_usage.h"
 #include "compact.h"
 #include "model_meta.h"
+#include "permission.h"
+#include "permission_ask.h"
 #include "provider.h"
 #include "session.h"
 #include "tool.h"
@@ -247,13 +249,29 @@ static struct item loop_run_tool(const struct agent_loop_params *params, const s
         result = agent_tool_result_make(call, INTERRUPT_MARKER, NULL);
         result.origin = ITEM_ORIGIN_SKIPPED;
     } else {
-        struct agent_tool_call prepared;
-        agent_tool_call_init(&prepared, call);
-        struct tool_run_ctx run_ctx = {.image_input = image_input};
-        char *output = agent_tool_call_run(&prepared, &run_ctx);
-        result = agent_tool_result_make(call, output, &run_ctx);
-        free(output);
-        agent_tool_call_destroy(&prepared);
+        char *outside = permission_gate(&params->session->permission, call->tool_name,
+                                        call->tool_arguments_json);
+        int denied = 0;
+        if (outside) {
+            int allowed = permission_ask(&params->session->permission, outside, NULL);
+            if (!allowed) {
+                char *message = permission_denied_message(outside);
+                result = agent_tool_result_make(call, message, NULL);
+                result.origin = ITEM_ORIGIN_DENIED;
+                free(message);
+                denied = 1;
+            }
+            free(outside);
+        }
+        if (!denied) {
+            struct agent_tool_call prepared;
+            agent_tool_call_init(&prepared, call);
+            struct tool_run_ctx run_ctx = {.image_input = image_input};
+            char *output = agent_tool_call_run(&prepared, &run_ctx);
+            result = agent_tool_result_make(call, output, &run_ctx);
+            free(output);
+            agent_tool_call_destroy(&prepared);
+        }
     }
 
     /* Enforce the aggregate image budget at ingestion — the window excludes `result`, which the

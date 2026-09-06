@@ -8,6 +8,7 @@
 
 #include "agent_core.h"
 #include "agent_tool.h"
+#include "permission.h"
 #include "provider.h"
 #include "tool.h"
 #include "xalloc.h"
@@ -264,6 +265,16 @@ struct item dispatch_tool_skipped(struct render_ctx *render, const struct item *
 struct item dispatch_tool_refused(struct render_ctx *render, const struct item *call)
 {
     return dispatch_without_run(render, call, REFUSED_MARKER, REFUSED_RESULT, ITEM_ORIGIN_REFUSED);
+}
+
+struct item dispatch_tool_denied(struct render_ctx *render, const struct item *call,
+                                 const char *path)
+{
+    char *message = permission_denied_message(path);
+    struct item result =
+        dispatch_without_run(render, call, DENIED_MARKER, message, ITEM_ORIGIN_DENIED);
+    free(message);
+    return result;
 }
 
 static void close_collapsed_line(struct disp *disp)

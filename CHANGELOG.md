@@ -7,6 +7,18 @@ notes (see [docs/releasing.md](docs/releasing.md)).
 
 ## [Unreleased]
 
+### Added
+
+- File access outside the project workspace now requires user approval: read, edit, write, and
+  bash calls touching paths outside the worktree root (or the working directory outside a
+  repository) pause for an Allow / Deny / Add workspace picker. Approvals are session-scoped and
+  grant the containing directory. Headless runs (no TTY) are not gated: nobody is present to ask,
+  so they keep hax's original behavior. See
+  [docs/workspace-permissions.md](docs/workspace-permissions.md).
+- Harmless special files (`/dev/null`, `/dev/zero`, `/dev/random`, `/dev/urandom`, `/dev/tty`,
+  `/dev/full`, `/dev/stdin`, `/dev/stdout`, `/dev/stderr`, `/dev/fd/*`, `/proc/self/fd/*`) are
+  always allowed: they are redirection sinks and sources, not data.
+
 ## [0.5.0] - 2026-09-04
 
 ### Added

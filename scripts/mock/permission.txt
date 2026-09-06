@@ -1,0 +1,21 @@
+# One bash call outside the workspace, then two inside: a plain write and a redirect to
+# /dev/null. Headless runs are not gated (nobody to ask), so all three run; the
+# interactive ask flow needs a TTY and is verified manually via tmux.
+# {{CWD}}/../outside.txt resolves to the scratch home, outside the workdir workspace.
+#
+#   HAX_PROVIDER=mock HAX_MOCK_SCRIPT=scripts/mock/permission.txt build/hax -p go
+
+text Trying to write outside the workspace
+tool bash {"command":"echo pwned > {{CWD}}/../outside.txt"}
+end-turn
+
+text Trying to write inside the workspace
+tool bash {"command":"echo ok > inside.txt"}
+end-turn
+
+text Writing to /dev/null is always allowed
+tool bash {"command":"echo ok > /dev/null"}
+end-turn
+
+text All done.
+end-turn

@@ -177,6 +177,8 @@ static const char *undispatched_marker(const struct item *result)
         return INTERRUPT_MARKER;
     if (result->origin == ITEM_ORIGIN_REFUSED)
         return REFUSED_MARKER;
+    if (result->origin == ITEM_ORIGIN_DENIED)
+        return DENIED_MARKER;
     return NULL;
 }
 

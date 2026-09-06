@@ -32,6 +32,7 @@ enum item_origin {
     ITEM_ORIGIN_INTERRUPTED,  /* ASSISTANT_MESSAGE or killed tool's TOOL_RESULT cut short */
     ITEM_ORIGIN_SKIPPED,      /* TOOL_RESULT for a call that did not run after an abort */
     ITEM_ORIGIN_REFUSED,      /* TOOL_RESULT for a call disabled by the frontend */
+    ITEM_ORIGIN_DENIED,       /* TOOL_RESULT for a call the user denied */
     ITEM_ORIGIN_SUMMARIZED,   /* TOOL_RESULT standing in for separately displayed output */
     ITEM_ORIGIN_TASK_NOTE,    /* synthetic USER_MESSAGE reporting finished background tasks */
 };
