@@ -223,6 +223,10 @@ static char **tokenize(const char *command, size_t *n_out)
             } else {
                 p++;
             }
+        } else if (*p == '#' && text.len == 0) {
+            /* A word-boundary # starts a comment; skip to end of line. */
+            while (*p && *p != '\n')
+                p++;
         } else {
             buf_append(&text, p, 1);
             p++;

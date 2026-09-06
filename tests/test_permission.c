@@ -206,6 +206,12 @@ static void test_bash_paths(void)
     expect_paths("rg foo 2>/dev/null; ls", devnull, 1);
     expect_paths("echo x 2>&1", NULL, 0);
 
+    /* A word-boundary # starts a comment; mid-word # is literal. */
+    expect_paths("echo hi # /etc/passwd", NULL, 0);
+    expect_paths("echo a#b", NULL, 0);
+    static const char *const after_comment[] = {"/tmp"};
+    expect_paths("# comment\nls /tmp", after_comment, 1);
+
     /* A relative redirect target resolves against the workspace and is not extracted. */
     expect_paths("echo marker42 > out.txt", NULL, 0);
     expect_paths("echo \"a > /tmp/x\"", NULL, 0);
