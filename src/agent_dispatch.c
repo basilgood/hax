@@ -9,6 +9,7 @@
 #include "agent_core.h"
 #include "agent_tool.h"
 #include "permission.h"
+#include "permission_ask.h"
 #include "provider.h"
 #include "tool.h"
 #include "xalloc.h"
@@ -267,14 +268,42 @@ struct item dispatch_tool_refused(struct render_ctx *render, const struct item *
     return dispatch_without_run(render, call, REFUSED_MARKER, REFUSED_RESULT, ITEM_ORIGIN_REFUSED);
 }
 
-struct item dispatch_tool_denied(struct render_ctx *render, const struct item *call,
-                                 const char *path)
+static struct item dispatch_tool_denied(struct render_ctx *render, const struct item *call,
+                                        const char *path)
 {
     char *message = permission_denied_message(path);
     struct item result =
         dispatch_without_run(render, call, DENIED_MARKER, message, ITEM_ORIGIN_DENIED);
     free(message);
     return result;
+}
+
+/* Gate a tool call against the workspace list, asking the user when it touches a path outside.
+ * Returns 1 when the call was denied, filling *result with the synthetic denied item; 0 when the
+ * call may proceed. `render` is NULL for headless runs, which are never gated. */
+int permission_gate_ask(struct permission *perm, const struct item *call, struct render_ctx *render,
+                        struct spinner *spinner, struct item *result)
+{
+    char *outside = permission_gate(perm, call->tool_name, call->tool_arguments_json);
+    if (!outside)
+        return 0;
+    if (render)
+        render_set_mode(render, RENDER_IDLE);
+    int allowed = permission_ask(perm, outside, spinner);
+    if (allowed) {
+        free(outside);
+        return 0;
+    }
+    if (render) {
+        *result = dispatch_tool_denied(render, call, outside);
+    } else {
+        char *message = permission_denied_message(outside);
+        *result = agent_tool_result_make(call, message, NULL);
+        result->origin = ITEM_ORIGIN_DENIED;
+        free(message);
+    }
+    free(outside);
+    return 1;
 }
 
 static void close_collapsed_line(struct disp *disp)

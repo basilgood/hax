@@ -2,8 +2,11 @@
 #ifndef HAX_AGENT_DISPATCH_H
 #define HAX_AGENT_DISPATCH_H
 
+#include "permission.h"
+#include "provider.h"
 #include "tool.h"
 #include "render/render_ctx.h"
+#include "render/spinner.h"
 
 /* Tool-call execution fused with its interactive presentation: dispatch_* run, refuse, or skip
  * a model call while rendering its tool block live; the render_* halves are also used alone to
@@ -18,9 +21,11 @@ struct item dispatch_tool_skipped(struct render_ctx *render, const struct item *
 /* Render a call refused by the frontend and return its synthetic result. */
 struct item dispatch_tool_refused(struct render_ctx *render, const struct item *call);
 
-/* Render a call denied by the user and return its synthetic result. */
-struct item dispatch_tool_denied(struct render_ctx *render, const struct item *call,
-                                 const char *path);
+/* Gate a tool call against the workspace list, asking the user when it touches a path outside.
+ * Returns 1 when the call was denied, filling *result with the synthetic denied item; 0 when the
+ * call may proceed. `render` is NULL for headless runs, which are never gated. */
+int permission_gate_ask(struct permission *perm, const struct item *call, struct render_ctx *render,
+                        struct spinner *spinner, struct item *result);
 
 /* Render a call as a collapsed breadcrumb without executing it. */
 void render_collapsed_tool_call(struct render_ctx *render, const struct item *call);
