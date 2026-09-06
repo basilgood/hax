@@ -53,12 +53,12 @@ static char *resolve_path(const char *path)
         if (!cursor)
             break;
         if (cursor == suffix) {
-            /* Root is the nearest existing ancestor. */
+            /* Root is the nearest existing ancestor; the resolved form is the original path
+             * (suffix has been truncated to "/" and would lose every component). */
             char *root = realpath("/", NULL);
             if (!root)
                 break;
-            char *result =
-                strcmp(root, "/") == 0 ? xstrdup(suffix) : xasprintf("%s%s", root, suffix);
+            char *result = strcmp(root, "/") == 0 ? xstrdup(path) : xasprintf("%s%s", root, path);
             free(root);
             free(suffix);
             return result;

@@ -290,6 +290,16 @@ static void test_approval_dir(void)
     EXPECT_STR_EQ(dir, "/");
     free(dir);
 
+    /* A path under a tree that exists nowhere walks up to root; the approval dir must be the
+     * path's own parent, never "/" (which would grant the whole filesystem). */
+    char *deep = xasprintf("/nonexistent-hax-%ld/deep/file.txt", (long)getpid());
+    char *deep_parent = xasprintf("/nonexistent-hax-%ld/deep", (long)getpid());
+    dir = permission_approval_dir(deep);
+    EXPECT_STR_EQ(dir, deep_parent);
+    free(dir);
+    free(deep);
+    free(deep_parent);
+
     free(sub);
     free(file);
     free(fresh);
