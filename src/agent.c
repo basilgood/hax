@@ -1135,11 +1135,11 @@ static struct item repl_loop_tool_call(const struct item *call, enum agent_loop_
         render_set_mode(render, RENDER_IDLE);
         return dispatch_tool_skipped(render, call);
     }
-    char *outside = permission_gate(&ctx->state->session->permission, call->tool_name,
+    char *outside = permission_gate(&ctx->state->session->perm, call->tool_name,
                                     call->tool_arguments_json);
     if (outside) {
         render_set_mode(render, RENDER_IDLE);
-        int allowed = permission_ask(&ctx->state->session->permission, outside, render->spinner);
+        int allowed = permission_ask(&ctx->state->session->perm, outside, render->spinner);
         if (!allowed) {
             struct item result = dispatch_tool_denied(render, call, outside);
             free(outside);

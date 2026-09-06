@@ -219,7 +219,7 @@ void agent_session_init(struct agent_session *session, struct provider *provider
         if (getcwd(cwd, sizeof(cwd)))
             project_dir = xstrdup(cwd);
     }
-    permission_init(&session->permission, project_dir);
+    permission_init(&session->perm, project_dir);
     free(project_dir);
 
     const char *model = config_str("model");
@@ -309,7 +309,7 @@ void agent_session_free(struct agent_session *session)
     free(session->model);
     free(session->model_label);
     free(session->effort);
-    permission_free(&session->permission);
+    permission_free(&session->perm);
     memset(session, 0, sizeof(*session));
 }
 

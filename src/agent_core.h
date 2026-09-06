@@ -60,7 +60,7 @@ struct agent_session {
     size_t cap_items;
 
     /* Workspaces the agent may touch freely; anything outside requires user approval. */
-    struct permission permission;
+    struct permission perm;
 };
 
 /* Initialize a session. A missing model is valid so the interactive frontend can prompt for one. */

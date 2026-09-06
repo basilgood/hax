@@ -249,11 +249,11 @@ static struct item loop_run_tool(const struct agent_loop_params *params, const s
         result = agent_tool_result_make(call, INTERRUPT_MARKER, NULL);
         result.origin = ITEM_ORIGIN_SKIPPED;
     } else {
-        char *outside = permission_gate(&params->session->permission, call->tool_name,
+        char *outside = permission_gate(&params->session->perm, call->tool_name,
                                         call->tool_arguments_json);
         int denied = 0;
         if (outside) {
-            int allowed = permission_ask(&params->session->permission, outside, NULL);
+            int allowed = permission_ask(&params->session->perm, outside, NULL);
             if (!allowed) {
                 char *message = permission_denied_message(outside);
                 result = agent_tool_result_make(call, message, NULL);
